@@ -1,0 +1,7 @@
+/data/*/*
+!/data/*/.keep
+!/data/nginx/default.conf.template
+
+/docker/*/*
+!/docker/*/.keep
+!/docker/*/Dockerfile

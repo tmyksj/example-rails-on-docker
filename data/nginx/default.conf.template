@@ -1,10 +1,9 @@
 upstream app {
-  server ${RAILS_HOST}:3000;
+  server app:3000;
 }
 
 server {
-  listen 80;
-  server_name ${SERVER_NAME};
+  ${EROD_NGINX_SERVER}
 
   # ~2 seconds is often enough for most folks to parse HTML/CSS and
   # retrieve needed images/icons/frames, connections are cheap in
@@ -12,9 +11,9 @@ server {
   keepalive_timeout 5;
 
   # path for static files
-  root ${RAILS_ROOT}/public;
-  access_log ${RAILS_ROOT}/log/nginx.access.log;
-  error_log ${RAILS_ROOT}/log/nginx.error.log info;
+  root ${EROD_NGINX_ROOT};
+  access_log ${EROD_NGINX_LOG}/nginx.access.log;
+  error_log ${EROD_NGINX_LOG}/nginx.error.log info;
 
   # this rewrites all the requests to the maintenance.html
   # page if it exists in the doc root. This is for capistrano's

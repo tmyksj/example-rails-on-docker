@@ -1,6 +1,23 @@
 version: "3"
 services:
-  mariadb:
+  app:
+    build: "./docker/rails"
+    command: "puma -w 4"
+    environment:
+      EROD_BUNDLE_PATH: "/var/www/docker/vendor/bundle"
+      EROD_DOCKERIZE_HOSTS: "db:3306"
+      EROD_RAILS_ROOT: "/var/www/app"
+      RAILS_DATABASE: "erod_database"
+      RAILS_DATABASE_PASSWORD: "erod_password"
+      RAILS_DATABASE_USERNAME: "erod_user"
+      RAILS_ENV: "production"
+    expose:
+      - "3000"
+    image: "erod-rails"
+    volumes:
+      - "./app:/var/www/app"
+      - "./docker/rails:/var/www/docker"
+  db:
     command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     environment:
       MYSQL_DATABASE: "erod_database"
@@ -11,36 +28,16 @@ services:
       - "3306"
     image: "mariadb"
     volumes:
-      - "./docker/mariadb/data:/var/lib/mysql"
-  nginx:
-    command: "/bin/sh -c \"envsubst '$$RAILS_HOST $$RAILS_ROOT $$SERVER_NAME' < /var/www/app/docker/nginx/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'\""
+      - "./data/mariadb:/var/lib/mysql"
+  web:
+    command: "/bin/sh -c \"envsubst '$$EROD_NGINX_LOG $$EROD_NGINX_ROOT $$EROD_NGINX_SERVER' < /var/www/data/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'\""
     environment:
-      RAILS_HOST: "rails"
-      RAILS_ROOT: "/var/www/app"
-      SERVER_NAME: "localhost"
+      EROD_NGINX_LOG: "/var/www/data"
+      EROD_NGINX_ROOT: "/var/www/app/public"
+      EROD_NGINX_SERVER: "listen 80; server_name localhost;"
     image: "nginx"
     ports:
       - "80:80"
     volumes:
-      - "./:/var/www/app"
-  rails:
-    build:
-      args:
-        GEMFILE: "Gemfile"
-        GEMFILE_LOCK: "Gemfile.lock"
-      context: "./"
-      dockerfile: "./docker/rails/Dockerfile"
-    command: "puma -w 4"
-    environment:
-      DOCKERIZE_HOSTS: "mariadb:3306"
-      RAILS_DATABASE: "erod_database"
-      RAILS_DATABASE_HOST: "mariadb"
-      RAILS_DATABASE_PASSWORD: "erod_password"
-      RAILS_DATABASE_USERNAME: "erod_user"
-      RAILS_ENV: "production"
-      RAILS_ROOT: "/var/www/app"
-    expose:
-      - "3000"
-    image: "erod-rails"
-    volumes:
-      - "./:/var/www/app"
+      - "./app:/var/www/app"
+      - "./data/nginx:/var/www/data"

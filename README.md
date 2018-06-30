@@ -1,16 +1,15 @@
-# example-rails-on-docker
-## is EROD
+# example-rails-on-docker: EROD
 
 # howto
 ## README.md environment
 - container:
-  - db:
-    - hostname: mariadb
-  - rails:
-    - hostname: rails
+  - app:
+    - hostname: app
     - image name: erod-rails
-  - webserver:
-    - hostname: nginx
+  - db:
+    - hostname: db
+  - web:
+    - hostname: web
 - deploy stack: erod
 
 ## build
@@ -18,15 +17,9 @@
 docker-compose build
 ```
 
-### rebuild
-```
-docker rmi erod-rails
-docker-compose build
-```
-
 ## rails new
 ```
-docker run --rm -it -v `pwd`:/var/www/app erod-rails rails new . --database=mysql --skip-bundle
+docker run --rm -it -v `pwd`/app:/var/www/app erod-rails rails new . --database=mysql --skip-bundle --skip-git
 ```
 
 ### config/database.yml example
@@ -37,7 +30,7 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: <%= ENV['RAILS_DATABASE_USERNAME'] %>
   password: <%= ENV['RAILS_DATABASE_PASSWORD'] %>
-  host: <%= ENV['RAILS_DATABASE_HOST'] %>
+  host: db
 
 development:
   <<: *default
@@ -59,17 +52,22 @@ docker-compose up
 
 ### rails command example
 ```
-docker-compose exec rails rails generate scaffold article title:string body:string
+docker-compose exec app bundle exec rails generate scaffold article title:string body:string
 ```
 
 ## deploy
-### with docker compose
-```
-docker-compose -f docker-stack.yml up
-```
-
 ### with docker swarm
+#### swarm init
 ```
 docker swarm init
+```
+
+#### stack deploy
+```
 docker stack deploy -c docker-stack.yml erod
+```
+
+#### service update
+```
+docker service update --force erod_app
 ```
