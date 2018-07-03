@@ -44,6 +44,11 @@ docker swarm init
 docker stack deploy -c docker-stack.yml erod
 ```
 
+##### with .env
+```
+env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy -c docker-stack.yml erod
+```
+
 #### service update
 ```
 docker service update --force erod_app
