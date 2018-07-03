@@ -1,11 +1,12 @@
 version: "3"
 services:
   app:
-    build: "./docker/rails"
+    build: "./docker/app"
     environment:
-      EROD_BUNDLE_PATH: "/var/www/docker/vendor/bundle"
+      EROD_APP_ROOT: "/var/www/app"
+      EROD_APP_TASKS: "db:create db:migrate db:seed"
+      EROD_BUNDLE_PATH: "/var/www/docker/app/vendor/bundle"
       EROD_DOCKERIZE_HOSTS: "db:3306"
-      EROD_RAILS_ROOT: "/var/www/app"
       RAILS_DATABASE_PASSWORD: "password"
       RAILS_DATABASE_USERNAME: "root"
     image: "erod-rails"
@@ -13,7 +14,8 @@ services:
       - "3000:3000"
     volumes:
       - "./app:/var/www/app"
-      - "./docker/rails:/var/www/docker"
+      - "./data/app:/var/www/data/app"
+      - "./docker/app:/var/www/docker/app"
   db:
     command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     environment:

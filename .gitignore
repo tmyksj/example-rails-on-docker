@@ -1,6 +1,9 @@
+.env
+
 /data/*/*
 !/data/*/.keep
-!/data/nginx/default.conf.template
+!/data/app/database.yml
+!/data/web/default.conf.template
 
 /docker/*/*
 !/docker/*/.keep

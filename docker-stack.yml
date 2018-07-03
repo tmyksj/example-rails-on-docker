@@ -1,12 +1,12 @@
 version: "3"
 services:
   app:
-    build: "./docker/rails"
+    build: "./docker/app"
     command: "puma -w 4"
     environment:
-      EROD_BUNDLE_PATH: "/var/www/docker/vendor/bundle"
+      EROD_APP_ROOT: "/var/www/app"
+      EROD_BUNDLE_PATH: "/var/www/docker/app/vendor/bundle"
       EROD_DOCKERIZE_HOSTS: "db:3306"
-      EROD_RAILS_ROOT: "/var/www/app"
       RAILS_DATABASE: "erod_database"
       RAILS_DATABASE_PASSWORD: "erod_password"
       RAILS_DATABASE_USERNAME: "erod_user"
@@ -16,7 +16,8 @@ services:
     image: "erod-rails"
     volumes:
       - "./app:/var/www/app"
-      - "./docker/rails:/var/www/docker"
+      - "./data/app:/var/www/data/app"
+      - "./docker/app:/var/www/docker/app"
   db:
     command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     environment:
@@ -28,16 +29,16 @@ services:
       - "3306"
     image: "mariadb"
     volumes:
-      - "./data/mariadb:/var/lib/mysql"
+      - "./data/db:/var/lib/mysql"
   web:
-    command: "/bin/sh -c \"envsubst '$$EROD_NGINX_LOG $$EROD_NGINX_ROOT $$EROD_NGINX_SERVER' < /var/www/data/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'\""
+    command: "/bin/sh -c \"envsubst '$$EROD_WEB_LOG $$EROD_WEB_ROOT $$EROD_WEB_SERVER' < /var/www/data/web/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'\""
     environment:
-      EROD_NGINX_LOG: "/var/www/data"
-      EROD_NGINX_ROOT: "/var/www/app/public"
-      EROD_NGINX_SERVER: "listen 80; server_name localhost;"
+      EROD_WEB_LOG: "/var/www/data/web"
+      EROD_WEB_ROOT: "/var/www/app/public"
+      EROD_WEB_SERVER: "listen 80; server_name localhost;"
     image: "nginx"
     ports:
       - "80:80"
     volumes:
       - "./app:/var/www/app"
-      - "./data/nginx:/var/www/data"
+      - "./data/web:/var/www/data/web"
