@@ -9,7 +9,7 @@ services:
       EROD_DOCKERIZE_HOSTS: "db:3306"
       RAILS_DATABASE_PASSWORD: "password"
       RAILS_DATABASE_USERNAME: "root"
-    image: "erod-rails"
+    image: "erod-app"
     ports:
       - "3000:3000"
     volumes:

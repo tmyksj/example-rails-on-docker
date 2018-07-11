@@ -13,7 +13,7 @@ services:
       RAILS_ENV: "production"
     expose:
       - "3000"
-    image: "erod-rails"
+    image: "erod-app"
     volumes:
       - "./app:/var/www/app"
       - "./data/app:/var/www/data/app"
